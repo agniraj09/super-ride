@@ -9,6 +9,7 @@ import com.booking.superride.entity.projections.OnTripTaxiDetails;
 import com.booking.superride.mapper.RideDetailsMapper;
 import com.booking.superride.repository.RideRepository;
 import com.booking.superride.repository.TaxiRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,9 +30,10 @@ public class RideService {
     private final TaxiRepository taxiRepository;
     private final RideDetailsMapper rideDetailsMapper;
 
+    @Transactional
     public RideDetailsResponse bookRide(RideBookingRequest request) {
         TaxiDetails selectedTaxi;
-        char pickupPoint = request.getPickupPoint();
+        char pickupPoint = request.pickupPoint();
 
         // Find all active taxis onboarded
         List<TaxiDetails> allActiveTaxis = taxiRepository.findAllByStatus("Active");
@@ -56,19 +58,21 @@ public class RideService {
             log.error("Available taxi cannot be found");
             return returnNoTaxiAvailableResponse();
         }
-        selectedTaxi.setCurrentLocation(request.getDropPoint());
+        selectedTaxi.setCurrentLocation(request.dropPoint());
         taxiRepository.save(selectedTaxi);
 
-        RideDetails rideDetails = buildRideDetails(request, selectedTaxi, pickupPoint);
+        RideDetails rideDetails = buildRideDetails(request, selectedTaxi);
         var bookedTaxi = rideRepository.save(rideDetails);
-        return RideDetailsResponse.builder().status(HttpStatus.OK.getReasonPhrase()).message("Taxi booked.").rideDetailsDTO(rideDetailsMapper.detailsToDTO(bookedTaxi)).build();
+        return new RideDetailsResponse(
+                HttpStatus.OK.getReasonPhrase(),
+                "Taxi booked.",
+                rideDetailsMapper.detailsToDTO(bookedTaxi));
     }
 
-    private RideDetails buildRideDetails(RideBookingRequest request, TaxiDetails selectedTaxi, char pickupPoint) {
-        int distanceBetweenPoints = Math.abs(request.getPickupPoint() - request.getDropPoint());
-        int distanceToCover = distanceBetweenPoints * 15;
-        double fare = calculateFare(distanceToCover);
-        return RideDetails.builder().taxiId(selectedTaxi.getTaxiId()).rideDate(LocalDate.now()).customerId(request.getCustomerId()).pickupPoint(pickupPoint).dropPoint(request.getDropPoint()).pickupTime(request.getPickupTime()).dropTime(request.getPickupTime().plusMinutes(distanceBetweenPoints * 60)).fare(fare).distance(distanceToCover).build();
+    private RideDetails buildRideDetails(RideBookingRequest request, TaxiDetails selectedTaxi) {
+        int distanceBetweenPoints = Math.abs(request.pickupPoint() - request.dropPoint());
+        double fare = calculateFare(distanceBetweenPoints * 15);
+        return rideDetailsMapper.rideBookingRequestToRideDetails(request, selectedTaxi.getTaxiId(), fare);
     }
 
     private TaxiDetails findMinimumEarnedTaxi(List<TaxiDetails> allActiveTaxis, char pickupPoint, int minimumDistance) {
@@ -79,31 +83,30 @@ public class RideService {
         if (CollectionUtils.isEmpty(availableTaxiFareDetails)) {
             selectedTaxi = availableTaxis.get(0);
         } else {
-            var selectedTaxiId = availableTaxiFareDetails.stream().filter(taxi -> Objects.nonNull(taxi.getFare())).min(Comparator.comparingDouble(AvailableTaxiFareDetails::getFare)).get().getTaxiId();
+            var selectedTaxiId = availableTaxiFareDetails.stream().min(Comparator.comparingDouble(AvailableTaxiFareDetails::getFare)).get().getTaxiId();
             selectedTaxi = availableTaxis.stream().filter(taxi -> Objects.equals(selectedTaxiId, taxi.getTaxiId())).findAny().get();
         }
         return selectedTaxi;
     }
 
     private static int findMinimumDistance(List<TaxiDetails> allActiveTaxis, char pickupPoint) {
-        int shortestDistance = Integer.MAX_VALUE;
-        for (var availableTaxi : allActiveTaxis) {
-            int distanceDifference = Math.abs(availableTaxi.getCurrentLocation() - pickupPoint);
-            if (distanceDifference < shortestDistance) {
-                shortestDistance = distanceDifference;
-            }
-        }
-        return shortestDistance;
+        return allActiveTaxis.stream()
+                .mapToInt(taxi -> Math.abs(taxi.getCurrentLocation() - pickupPoint))
+                .min()
+                .orElse(Integer.MAX_VALUE);
     }
 
     private void findAndRemoveOnTripTaxis(RideBookingRequest request, List<TaxiDetails> allActiveTaxis) {
-        List<OnTripTaxiDetails> onTripTaxiDetails = rideRepository.findAllByRideDateAndDropTimeGreaterThanEqual(request.getPickupTime().toLocalDate(), request.getPickupTime());
+        List<OnTripTaxiDetails> onTripTaxiDetails = rideRepository.findAllByRideDateAndDropTimeGreaterThanEqual(request.pickupTime().toLocalDate(), request.pickupTime());
         List<Long> onTripTaxiIds = onTripTaxiDetails.stream().map(OnTripTaxiDetails::getTaxiId).toList();
         allActiveTaxis.removeIf(taxi -> onTripTaxiIds.contains(taxi.getTaxiId()));
     }
 
     private static RideDetailsResponse returnNoTaxiAvailableResponse() {
-        return RideDetailsResponse.builder().status(HttpStatus.NOT_FOUND.getReasonPhrase()).message("All taxis are currently booked. Please try again later!").build();
+        return new RideDetailsResponse(
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                "All taxis are currently booked. Please try again later!",
+                null);
     }
 
     private double calculateFare(int distanceToRide) {

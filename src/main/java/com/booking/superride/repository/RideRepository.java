@@ -14,7 +14,6 @@ import java.util.List;
 
 public interface RideRepository extends JpaRepository<RideDetails, Long> {
 
-    RideDetails save(RideDetails rideDetails);
     List<OnTripTaxiDetails> findAllByRideDateAndDropTimeGreaterThanEqual(LocalDate date, LocalDateTime dateTime);
 
     @Query(value = "SELECT taxiid as TaxiId, sum(fare) as fare from ride_details where ridedate = :rideDate and taxiid in :taxiids group by taxiid", nativeQuery = true)

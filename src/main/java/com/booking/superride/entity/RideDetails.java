@@ -3,13 +3,15 @@ package com.booking.superride.entity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @Builder
 @Entity
 @Table(name = "ride_details")
@@ -39,4 +41,53 @@ public class RideDetails {
     @Column(name = "droptime")
     private LocalDateTime dropTime;
 
+    public RideDetails setRideId(Long rideId) {
+        this.rideId = rideId;
+        return this;
+    }
+
+    public RideDetails setTaxiId(Long taxiId) {
+        this.taxiId = taxiId;
+        return this;
+    }
+
+    public RideDetails setCustomerId(Long customerId) {
+        this.customerId = customerId;
+        return this;
+    }
+
+    public RideDetails setRideDate(LocalDate rideDate) {
+        this.rideDate = rideDate;
+        return this;
+    }
+
+    public RideDetails setPickupPoint(char pickupPoint) {
+        this.pickupPoint = pickupPoint;
+        return this;
+    }
+
+    public RideDetails setDropPoint(char dropPoint) {
+        this.dropPoint = dropPoint;
+        return this;
+    }
+
+    public RideDetails setDistance(int distance) {
+        this.distance = distance;
+        return this;
+    }
+
+    public RideDetails setFare(double fare) {
+        this.fare = fare;
+        return this;
+    }
+
+    public RideDetails setPickupTime(LocalDateTime pickupTime) {
+        this.pickupTime = pickupTime;
+        return this;
+    }
+
+    public RideDetails setDropTime(LocalDateTime dropTime) {
+        this.dropTime = dropTime;
+        return this;
+    }
 }
