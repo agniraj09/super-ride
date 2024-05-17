@@ -12,14 +12,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
 @Entity
 @Table(name = "ride_details")
 public class RideDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ride_details_rideid_seq")
-    @SequenceGenerator(name = "ride_details_rideid_seq", sequenceName = "ride_details_rideid_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "rideid")
     private Long rideId;
     @Column(name = "taxiid")

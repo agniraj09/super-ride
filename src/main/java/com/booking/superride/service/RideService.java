@@ -9,11 +9,11 @@ import com.booking.superride.entity.projections.OnTripTaxiDetails;
 import com.booking.superride.mapper.RideDetailsMapper;
 import com.booking.superride.repository.RideRepository;
 import com.booking.superride.repository.TaxiRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
@@ -29,14 +29,15 @@ public class RideService {
     private final RideRepository rideRepository;
     private final TaxiRepository taxiRepository;
     private final RideDetailsMapper rideDetailsMapper;
+    private final TransactionTemplate readTransactionTemplate;
+    private final TransactionTemplate writeTransactionTemplate;
 
-    @Transactional
     public RideDetailsResponse bookRide(RideBookingRequest request) {
         TaxiDetails selectedTaxi;
         char pickupPoint = request.pickupPoint();
 
         // Find all active taxis onboarded
-        List<TaxiDetails> allActiveTaxis = taxiRepository.findAllByStatus("Active");
+        List<TaxiDetails> allActiveTaxis = readTransactionTemplate.execute(action -> taxiRepository.findAllByStatus("Active"));
         if (CollectionUtils.isEmpty(allActiveTaxis)) {
             log.error("No active taxi found");
             return returnNoTaxiAvailableResponse();
@@ -59,10 +60,13 @@ public class RideService {
             return returnNoTaxiAvailableResponse();
         }
         selectedTaxi.setCurrentLocation(request.dropPoint());
-        taxiRepository.save(selectedTaxi);
 
-        RideDetails rideDetails = buildRideDetails(request, selectedTaxi);
-        var bookedTaxi = rideRepository.save(rideDetails);
+        var bookedTaxi = writeTransactionTemplate.execute(action -> {
+            taxiRepository.save(selectedTaxi);
+            RideDetails rideDetails = buildRideDetails(request, selectedTaxi);
+            return rideRepository.save(rideDetails);
+        });
+
         return new RideDetailsResponse(
                 HttpStatus.OK.getReasonPhrase(),
                 "Taxi booked.",
@@ -77,13 +81,21 @@ public class RideService {
 
     private TaxiDetails findMinimumEarnedTaxi(List<TaxiDetails> allActiveTaxis, char pickupPoint, int minimumDistance) {
         TaxiDetails selectedTaxi;
-        var availableTaxis = allActiveTaxis.stream().filter(taxi -> Math.abs(taxi.getCurrentLocation() - pickupPoint) == minimumDistance).toList();
-        List<AvailableTaxiFareDetails> availableTaxiFareDetails = rideRepository.sumByRideDateAndTaxiIdIn(LocalDate.now(), availableTaxis.stream().map(TaxiDetails::getTaxiId).toList());
+        var availableTaxis = allActiveTaxis.stream()
+                .filter(taxi -> Math.abs(taxi.getCurrentLocation() - pickupPoint) == minimumDistance)
+                .toList();
+        var availableTaxiIds = availableTaxis.stream().map(TaxiDetails::getTaxiId).toList();
+        List<AvailableTaxiFareDetails> availableTaxiFareDetails =
+                readTransactionTemplate.execute(action ->
+                        rideRepository.sumByRideDateAndTaxiIdIn(LocalDate.now(), availableTaxiIds));
         log.info("availableTaxiFareDetails -> {}", availableTaxiFareDetails);
         if (CollectionUtils.isEmpty(availableTaxiFareDetails)) {
             selectedTaxi = availableTaxis.get(0);
         } else {
-            var selectedTaxiId = availableTaxiFareDetails.stream().min(Comparator.comparingDouble(AvailableTaxiFareDetails::getFare)).get().getTaxiId();
+            var selectedTaxiId = availableTaxiFareDetails.stream()
+                    .min(Comparator.comparingDouble(AvailableTaxiFareDetails::getFare))
+                    .get()
+                    .getTaxiId();
             selectedTaxi = availableTaxis.stream().filter(taxi -> Objects.equals(selectedTaxiId, taxi.getTaxiId())).findAny().get();
         }
         return selectedTaxi;
@@ -97,7 +109,10 @@ public class RideService {
     }
 
     private void findAndRemoveOnTripTaxis(RideBookingRequest request, List<TaxiDetails> allActiveTaxis) {
-        List<OnTripTaxiDetails> onTripTaxiDetails = rideRepository.findAllByRideDateAndDropTimeGreaterThanEqual(request.pickupTime().toLocalDate(), request.pickupTime());
+        List<OnTripTaxiDetails> onTripTaxiDetails =
+                readTransactionTemplate.execute(action ->
+                        rideRepository.findAllByRideDateAndDropTimeGreaterThanEqual(request.pickupTime().toLocalDate(),
+                                request.pickupTime()));
         List<Long> onTripTaxiIds = onTripTaxiDetails.stream().map(OnTripTaxiDetails::getTaxiId).toList();
         allActiveTaxis.removeIf(taxi -> onTripTaxiIds.contains(taxi.getTaxiId()));
     }

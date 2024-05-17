@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/taxi")
 @RequiredArgsConstructor
@@ -21,5 +23,10 @@ public class TaxiController {
     @PostMapping("/add-taxi")
     public ResponseEntity<TaxiDetailsDTO> saveTaxiDetails(@RequestBody @Valid AddTaxiRequest addTaxiRequest) {
         return ResponseEntity.ok(taxiService.saveTaxiDetails(addTaxiRequest));
+    }
+
+    @PostMapping("/bulk/add-taxi")
+    public ResponseEntity<List<TaxiDetailsDTO>> saveTaxiDetailsBulk(@RequestBody List<AddTaxiRequest> addTaxiRequest) {
+        return ResponseEntity.ok(taxiService.saveTaxis(addTaxiRequest));
     }
 }

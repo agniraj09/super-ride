@@ -4,9 +4,9 @@ import com.booking.superride.domain.CustomerDetailsDTO;
 import com.booking.superride.entity.CustomerDetails;
 import com.booking.superride.mapper.CustomerMapper;
 import com.booking.superride.repository.CustomerRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

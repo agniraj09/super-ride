@@ -11,8 +11,7 @@ import lombok.Setter;
 public class TaxiDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "taxi_details_taxiid_seq")
-    @SequenceGenerator(name = "taxi_details_taxiid_seq", sequenceName = "taxi_details_taxiid_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "taxiid")
     private Long taxiId;
     @Column(name = "make")
