@@ -13,10 +13,10 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="taxiid" type="bigint">
-                <constraints nullable="false"/>
+                <constraints nullable="false" foreignKeyName="ride_taxiid" referencedTableName="taxi_details" referencedColumnNames="taxiid" />
             </column>
             <column name="customerid" type="bigint">
-                <constraints nullable="false"/>
+                <constraints nullable="false" foreignKeyName="ride_customerid" referencedTableName="customer_details" referencedColumnNames="customerid" />
             </column>
             <column name="ridedate" type="date"/>
             <column name="pickuppoint" type="char"/>

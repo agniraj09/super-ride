@@ -9,10 +9,10 @@ import com.booking.superride.entity.projections.OnTripTaxiDetails;
 import com.booking.superride.mapper.RideDetailsMapper;
 import com.booking.superride.repository.RideRepository;
 import com.booking.superride.repository.TaxiRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
@@ -24,14 +24,24 @@ import java.util.Objects;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RideService {
-
     private final RideRepository rideRepository;
     private final TaxiRepository taxiRepository;
     private final RideDetailsMapper rideDetailsMapper;
     private final TransactionTemplate transactionTemplate;
+
+    public RideService(RideRepository rideRepository,
+                       TaxiRepository taxiRepository,
+                       RideDetailsMapper rideDetailsMapper,
+                       TransactionTemplate transactionTemplate) {
+        this.rideRepository = rideRepository;
+        this.taxiRepository = taxiRepository;
+        this.rideDetailsMapper = rideDetailsMapper;
+        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        this.transactionTemplate = transactionTemplate;
+    }
+
 
     public RideDetailsResponse bookRide(RideBookingRequest request) {
         TaxiDetails selectedTaxi;

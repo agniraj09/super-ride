@@ -15,7 +15,6 @@ public interface TaxiMapper {
     @Mapping(target = "status", expression = "java(\"Active\")")
     TaxiDetails requestToDetails(AddTaxiRequest addTaxiRequest);
 
-    @Mapping(target = "status", expression = "java(\"Active\")")
     List<TaxiDetails> requestToDetailsList(List<AddTaxiRequest> addTaxiRequest);
 
     TaxiDetailsDTO detailsToDTO(TaxiDetails taxiDetails);
