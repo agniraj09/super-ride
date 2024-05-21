@@ -16,6 +16,6 @@ public interface RideRepository extends JpaRepository<RideDetails, Long> {
 
     List<OnTripTaxiDetails> findAllByRideDateAndDropTimeGreaterThanEqual(LocalDate date, LocalDateTime dateTime);
 
-    @Query(value = "SELECT taxiid as TaxiId, sum(fare) as fare from ride_details where ridedate = :rideDate and taxiid in :taxiids group by taxiid", nativeQuery = true)
+    @Query(value = "SELECT taxiId as taxiId, sum(fare) as fare from RideDetails where rideDate = :rideDate and taxiId in :taxiids group by taxiId")
     List<AvailableTaxiFareDetails> sumByRideDateAndTaxiIdIn(@Param("rideDate") LocalDate rideDate,@Param("taxiids") List<Long> taxiids);
 }

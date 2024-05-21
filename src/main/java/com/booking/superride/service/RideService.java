@@ -1,11 +1,14 @@
 package com.booking.superride.service;
 
+import static com.booking.superride.constants.AppConstants.*;
+
 import com.booking.superride.domain.RideBookingRequest;
 import com.booking.superride.domain.RideDetailsResponse;
 import com.booking.superride.entity.RideDetails;
 import com.booking.superride.entity.TaxiDetails;
 import com.booking.superride.entity.projections.AvailableTaxiFareDetails;
 import com.booking.superride.entity.projections.OnTripTaxiDetails;
+import com.booking.superride.exception.TaxiNotFoundException;
 import com.booking.superride.mapper.RideDetailsMapper;
 import com.booking.superride.repository.RideRepository;
 import com.booking.superride.repository.TaxiRepository;
@@ -48,17 +51,15 @@ public class RideService {
         char pickupPoint = request.pickupPoint();
 
         // Find all active taxis onboarded
-        List<TaxiDetails> allActiveTaxis = taxiRepository.findAllByStatus("Active");
+        List<TaxiDetails> allActiveTaxis = taxiRepository.findAllByStatus("Activea");
         if (CollectionUtils.isEmpty(allActiveTaxis)) {
-            log.error("No active taxi found");
-            return returnNoTaxiAvailableResponse();
+            throw new TaxiNotFoundException(NO_ACTIVE_TAXI_FOUND_ERROR);
         }
 
         // Find all taxis which are currently on trip and remove from active taxi list
         findAndRemoveOnTripTaxis(request, allActiveTaxis);
         if (CollectionUtils.isEmpty(allActiveTaxis)) {
-            log.error("All taxis are on trip. No taxi is available");
-            return returnNoTaxiAvailableResponse();
+            throw new TaxiNotFoundException(ALL_TAXIS_ARE_IN_TRIP_ERROR);
         }
 
         // Find minimum distance between taxi and customer
@@ -67,8 +68,7 @@ public class RideService {
         // Select low earned taxi among all taxis available in minimum distance
         selectedTaxi = findMinimumEarnedTaxi(allActiveTaxis, pickupPoint, minimumDistance);
         if (selectedTaxi == null) {
-            log.error("Available taxi cannot be found");
-            return returnNoTaxiAvailableResponse();
+            throw new TaxiNotFoundException(GENERIC_TAXI_NOT_FOUND_ERROR);
         }
         selectedTaxi.setCurrentLocation(request.dropPoint());
 
@@ -124,13 +124,6 @@ public class RideService {
                         request.pickupTime());
         List<Long> onTripTaxiIds = onTripTaxiDetails.stream().map(OnTripTaxiDetails::getTaxiId).toList();
         allActiveTaxis.removeIf(taxi -> onTripTaxiIds.contains(taxi.getTaxiId()));
-    }
-
-    private static RideDetailsResponse returnNoTaxiAvailableResponse() {
-        return new RideDetailsResponse(
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                "All taxis are currently booked. Please try again later!",
-                null);
     }
 
     private double calculateFare(int distanceToRide) {
