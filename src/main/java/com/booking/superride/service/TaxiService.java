@@ -26,11 +26,8 @@ public class TaxiService {
 
     @Transactional
     public List<TaxiDetailsDTO> saveTaxis(List<AddTaxiRequest> addTaxiRequest) {
-        var taxiDetails = addTaxiRequest.stream()
-                .map(taxiMapper::requestToDetails)
-                .toList();
+        var taxiDetails = taxiMapper.requestToDetailsList(addTaxiRequest);
         taxiDetails = taxiRepository.saveAll(taxiDetails);
-        var taxisDTO = taxiDetails.stream().map(taxiMapper::detailsToDTO).toList();
-        return taxisDTO;
+        return taxiMapper.detailsToDTOList(taxiDetails);
     }
 }

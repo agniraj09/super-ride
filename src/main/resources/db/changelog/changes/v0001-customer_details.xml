@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-customer-table-and-sequence" author="agniraj">
+        <createSequence sequenceName="customer_details_seq" incrementBy="50" startValue="1"/>
+
+        <createTable tableName="customer_details">
+            <column name="customerid" type="bigint" defaultValueSequenceNext="customer_details_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customername" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

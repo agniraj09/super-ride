@@ -7,11 +7,18 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface TaxiMapper {
 
     @Mapping(target = "status", expression = "java(\"Active\")")
     TaxiDetails requestToDetails(AddTaxiRequest addTaxiRequest);
 
+    @Mapping(target = "status", expression = "java(\"Active\")")
+    List<TaxiDetails> requestToDetailsList(List<AddTaxiRequest> addTaxiRequest);
+
     TaxiDetailsDTO detailsToDTO(TaxiDetails taxiDetails);
+
+    List<TaxiDetailsDTO> detailsToDTOList(List<TaxiDetails> taxiDetails);
 }

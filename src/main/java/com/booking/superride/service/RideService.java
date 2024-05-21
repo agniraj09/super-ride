@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 
@@ -24,20 +25,20 @@ import java.util.Objects;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RideService {
 
     private final RideRepository rideRepository;
     private final TaxiRepository taxiRepository;
     private final RideDetailsMapper rideDetailsMapper;
-    private final TransactionTemplate readTransactionTemplate;
-    private final TransactionTemplate writeTransactionTemplate;
+    private final TransactionTemplate transactionTemplate;
 
     public RideDetailsResponse bookRide(RideBookingRequest request) {
         TaxiDetails selectedTaxi;
         char pickupPoint = request.pickupPoint();
 
         // Find all active taxis onboarded
-        List<TaxiDetails> allActiveTaxis = readTransactionTemplate.execute(action -> taxiRepository.findAllByStatus("Active"));
+        List<TaxiDetails> allActiveTaxis = taxiRepository.findAllByStatus("Active");
         if (CollectionUtils.isEmpty(allActiveTaxis)) {
             log.error("No active taxi found");
             return returnNoTaxiAvailableResponse();
@@ -61,7 +62,7 @@ public class RideService {
         }
         selectedTaxi.setCurrentLocation(request.dropPoint());
 
-        var bookedTaxi = writeTransactionTemplate.execute(action -> {
+        var bookedTaxi = transactionTemplate.execute(action -> {
             taxiRepository.save(selectedTaxi);
             RideDetails rideDetails = buildRideDetails(request, selectedTaxi);
             return rideRepository.save(rideDetails);
@@ -86,8 +87,7 @@ public class RideService {
                 .toList();
         var availableTaxiIds = availableTaxis.stream().map(TaxiDetails::getTaxiId).toList();
         List<AvailableTaxiFareDetails> availableTaxiFareDetails =
-                readTransactionTemplate.execute(action ->
-                        rideRepository.sumByRideDateAndTaxiIdIn(LocalDate.now(), availableTaxiIds));
+                rideRepository.sumByRideDateAndTaxiIdIn(LocalDate.now(), availableTaxiIds);
         log.info("availableTaxiFareDetails -> {}", availableTaxiFareDetails);
         if (CollectionUtils.isEmpty(availableTaxiFareDetails)) {
             selectedTaxi = availableTaxis.get(0);
@@ -110,9 +110,8 @@ public class RideService {
 
     private void findAndRemoveOnTripTaxis(RideBookingRequest request, List<TaxiDetails> allActiveTaxis) {
         List<OnTripTaxiDetails> onTripTaxiDetails =
-                readTransactionTemplate.execute(action ->
-                        rideRepository.findAllByRideDateAndDropTimeGreaterThanEqual(request.pickupTime().toLocalDate(),
-                                request.pickupTime()));
+                rideRepository.findAllByRideDateAndDropTimeGreaterThanEqual(request.pickupTime().toLocalDate(),
+                        request.pickupTime());
         List<Long> onTripTaxiIds = onTripTaxiDetails.stream().map(OnTripTaxiDetails::getTaxiId).toList();
         allActiveTaxis.removeIf(taxi -> onTripTaxiIds.contains(taxi.getTaxiId()));
     }
