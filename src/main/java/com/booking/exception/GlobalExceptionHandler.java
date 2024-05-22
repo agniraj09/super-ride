@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    private String getStackTraceAsString(TaxiNotFoundException exception) {
+    private String getStackTraceAsString(Exception exception) {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         exception.printStackTrace(printWriter);
