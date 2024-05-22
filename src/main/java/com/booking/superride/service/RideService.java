@@ -51,7 +51,7 @@ public class RideService {
         char pickupPoint = request.pickupPoint();
 
         // Find all active taxis onboarded
-        List<TaxiDetails> allActiveTaxis = taxiRepository.findAllByStatus("Activea");
+        List<TaxiDetails> allActiveTaxis = taxiRepository.findAllByStatus("Active");
         if (CollectionUtils.isEmpty(allActiveTaxis)) {
             throw new TaxiNotFoundException(NO_ACTIVE_TAXI_FOUND_ERROR);
         }
