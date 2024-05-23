@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-ride-table-and-sequence" author="agniraj">
+        <createSequence sequenceName="ride_details_seq" incrementBy="50" startValue="1"/>
+
+        <createTable tableName="ride_details">
+            <column name="rideid" type="bigint" defaultValueSequenceNext="ride_details_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="taxiid" type="bigint">
+                <constraints nullable="false" foreignKeyName="ride_taxiid" referencedTableName="taxi_details" referencedColumnNames="taxiid" />
+            </column>
+            <column name="customerid" type="bigint">
+                <constraints nullable="false" foreignKeyName="ride_customerid" referencedTableName="customer_details" referencedColumnNames="customerid" />
+            </column>
+            <column name="ridedate" type="date"/>
+            <column name="pickuppoint" type="char"/>
+            <column name="droppoint" type="char"/>
+            <column name="distance" type="integer"/>
+            <column name="fare" type="double"/>
+            <column name="pickuptime" type="timestamp"/>
+            <column name="droptime" type="timestamp"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
