@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-taxi-table-and-sequence" author="agniraj">
+        <createSequence sequenceName="taxi_details_seq" incrementBy="50" startValue="1"/>
+
+        <createTable tableName="taxi_details">
+            <column name="taxiid" type="bigint" defaultValueSequenceNext="taxi_details_seq">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="drivername" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="make" type="varchar(30)"/>
+            <column name="taxinumber" type="varchar(20)"/>
+            <column name="currentlocation" type="char"/>
+            <column name="status" type="varchar(20)"/>
+        </createTable>
+
+        <loadData tableName="taxi_details" file="db/changelog/initial-data/taxi_details_initial_load.csv"/>
+    </changeSet>
+
+</databaseChangeLog>
