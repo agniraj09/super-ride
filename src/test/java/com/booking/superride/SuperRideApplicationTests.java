@@ -7,6 +7,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class SuperRideApplicationTests {
 
     @Test
-    void contextLoads() {
-    }
+    void contextLoads() {}
 }

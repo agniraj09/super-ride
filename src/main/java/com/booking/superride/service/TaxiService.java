@@ -4,11 +4,10 @@ import com.booking.superride.domain.AddTaxiRequest;
 import com.booking.superride.domain.TaxiDetailsDTO;
 import com.booking.superride.mapper.TaxiMapper;
 import com.booking.superride.repository.TaxiRepository;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

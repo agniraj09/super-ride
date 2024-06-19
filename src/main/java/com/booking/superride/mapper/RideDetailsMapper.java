@@ -13,17 +13,17 @@ public interface RideDetailsMapper {
     RideDetailsDTO detailsToDTO(RideDetails rideDetails);
 
     @Mappings({
-            @Mapping(target = "dropTime",
-                    expression = "java(request.pickupTime().plusMinutes((Math.abs(request.pickupPoint() - request.dropPoint())) * 60))"),
-            @Mapping(target = "distance",
-                    expression = "java((Math.abs(request.pickupPoint() - request.dropPoint())) * 15)"),
-            @Mapping(target = "rideDate",
-                    expression = "java(LocalDate.now())"),
-            @Mapping(target = "taxiId",
-                    source = "taxiId"),
-            @Mapping(target = "fare",
-                    source = "fare")
+        @Mapping(
+                target = "dropTime",
+                expression =
+                        "java(request.pickupTime().plusMinutes((Math.abs(request.pickupPoint() - request.dropPoint())) * 60))"),
+        @Mapping(
+                target = "distance",
+                expression = "java((Math.abs(request.pickupPoint() - request.dropPoint())) * 15)"),
+        @Mapping(target = "rideDate", expression = "java(LocalDate.now())"),
+        @Mapping(target = "taxiId", source = "taxiId"),
+        @Mapping(target = "fare", source = "fare")
     })
-    RideDetails rideBookingRequestToRideDetails(RideBookingRequest request, Long taxiId, Double fare);
-
+    RideDetails rideBookingRequestToRideDetails(
+            RideBookingRequest request, Long taxiId, Double fare);
 }

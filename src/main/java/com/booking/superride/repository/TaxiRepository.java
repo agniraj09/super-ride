@@ -1,9 +1,8 @@
 package com.booking.superride.repository;
 
 import com.booking.superride.entity.TaxiDetails;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TaxiRepository extends JpaRepository<TaxiDetails, Long> {
 

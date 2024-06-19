@@ -1,15 +1,9 @@
 package com.booking.superride.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import lombok.Getter;
 
 @Getter
 @Entity
@@ -20,22 +14,31 @@ public class RideDetails {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "rideid")
     private Long rideId;
+
     @Column(name = "taxiid")
     private Long taxiId;
+
     @Column(name = "customerid")
     private Long customerId;
+
     @Column(name = "ridedate")
     private LocalDate rideDate;
+
     @Column(name = "pickuppoint")
     private char pickupPoint;
+
     @Column(name = "droppoint")
     private char dropPoint;
+
     @Column(name = "distance")
     private int distance;
+
     @Column(name = "fare")
     private double fare;
+
     @Column(name = "pickuptime")
     private LocalDateTime pickupTime;
+
     @Column(name = "droptime")
     private LocalDateTime dropTime;
 
