@@ -136,13 +136,23 @@
 				<artifactId>spotless-maven-plugin</artifactId>
 				<version>${spotless.version}</version>
 				<configuration>
-					<java>
-						<googleJavaFormat>
-							<style>AOSP</style>
-						</googleJavaFormat>
-						<removeUnusedImports/>
-					</java>
-				</configuration>
+		                    <java>
+		                        <palantirJavaFormat>
+		                            <version>2.47.0</version>
+		                        </palantirJavaFormat>
+		                        <importOrder />
+		                        <removeUnusedImports />
+		                        <formatAnnotations />
+		                    </java>
+		                </configuration>
+		                <executions>
+		                    <execution>
+		                        <phase>compile</phase>
+		                        <goals>
+		                            <goal>check</goal>
+		                        </goals>
+		                    </execution>
+		                </executions>
 			</plugin>
 		</plugins>
 	</build>
