@@ -1,9 +1,7 @@
 package com.booking.superride.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Entity
@@ -14,14 +12,19 @@ public class TaxiDetails {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "taxiid")
     private Long taxiId;
+
     @Column(name = "make")
     private String make;
+
     @Column(name = "taxinumber")
     private String taxiNumber;
+
     @Column(name = "currentlocation")
     private char currentLocation;
+
     @Column(name = "drivername")
     private String driverName;
+
     private String status;
 
     public TaxiDetails setTaxiId(Long taxiId) {

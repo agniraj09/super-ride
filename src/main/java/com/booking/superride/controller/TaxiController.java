@@ -4,14 +4,13 @@ import com.booking.superride.domain.AddTaxiRequest;
 import com.booking.superride.domain.TaxiDetailsDTO;
 import com.booking.superride.service.TaxiService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/taxi")

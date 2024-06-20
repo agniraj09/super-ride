@@ -16,7 +16,7 @@ public class CustomerService {
     private final CustomerMapper customerMapper;
 
     @Transactional
-    public CustomerDetails saveCustomerDetails(CustomerDetailsDTO customerDetailsDTO){
+    public CustomerDetails saveCustomerDetails(CustomerDetailsDTO customerDetailsDTO) {
         CustomerDetails details = customerMapper.dtoToDetails(customerDetailsDTO);
         return customerRepository.save(details);
     }
