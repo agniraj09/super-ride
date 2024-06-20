@@ -1,10 +1,9 @@
 package com.booking.superride;
 
+import com.booking.superride.common.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = TestSuperRideApplication.class)
-public class SuperRideApplicationTests {
+public class SuperRideApplicationTests extends AbstractIntegrationTest {
 
     @Test
     void contextLoads() {}

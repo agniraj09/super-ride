@@ -3,17 +3,22 @@ package com.booking.superride.controller;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-import com.booking.superride.common.ContainersConfig;
+import com.booking.superride.common.AbstractIntegrationTest;
 import com.booking.superride.domain.AddTaxiRequest;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.TestInstance;
 
-@Import(ContainersConfig.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class TaxiControllerTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class TaxiControllerTest extends AbstractIntegrationTest {
+
+    @BeforeAll
+    void setUp() {
+        RestAssured.port = localServerPort;
+    }
 
     @Test
     void testSaveTaxiDetailsWithSingleTaxi() {

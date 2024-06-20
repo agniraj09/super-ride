@@ -6,7 +6,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.booking.superride.common.ContainersConfig;
+import com.booking.superride.common.AbstractIntegrationTest;
 import com.booking.superride.domain.RideBookingRequest;
 import com.booking.superride.domain.RideDetailsResponse;
 import com.booking.superride.entity.CustomerDetails;
@@ -14,18 +14,15 @@ import com.booking.superride.entity.TaxiDetails;
 import com.booking.superride.repository.CustomerRepository;
 import com.booking.superride.repository.RideRepository;
 import com.booking.superride.repository.TaxiRepository;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 
-@Import(ContainersConfig.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class RideControllerTest {
+class RideControllerTest extends AbstractIntegrationTest {
 
     private TaxiDetails taxi;
     private CustomerDetails customer;
@@ -41,6 +38,7 @@ public class RideControllerTest {
 
     @BeforeAll
     void setup() {
+        RestAssured.port = localServerPort;
         deleteAllData();
         this.customer = customerRepository.save(new CustomerDetails().setCustomerName("Agniraj"));
         this.taxi = taxiRepository.save(new TaxiDetails()
