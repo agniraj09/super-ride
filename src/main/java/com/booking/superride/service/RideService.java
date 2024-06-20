@@ -71,54 +71,43 @@ public class RideService {
         }
         selectedTaxi.setCurrentLocation(request.dropPoint());
 
-        var bookedTaxi =
-                transactionTemplate.execute(
-                        action -> {
-                            taxiRepository.save(selectedTaxi);
-                            RideDetails rideDetails = buildRideDetails(request, selectedTaxi);
-                            return rideRepository.save(rideDetails);
-                        });
+        var bookedTaxi = transactionTemplate.execute(action -> {
+            taxiRepository.save(selectedTaxi);
+            RideDetails rideDetails = buildRideDetails(request, selectedTaxi);
+            return rideRepository.save(rideDetails);
+        });
 
         return new RideDetailsResponse(
-                HttpStatus.OK.getReasonPhrase(),
-                "Taxi booked.",
-                rideDetailsMapper.detailsToDTO(bookedTaxi));
+                HttpStatus.OK.getReasonPhrase(), "Taxi booked.", rideDetailsMapper.detailsToDTO(bookedTaxi));
     }
 
     private RideDetails buildRideDetails(RideBookingRequest request, TaxiDetails selectedTaxi) {
         int distanceBetweenPoints = Math.abs(request.pickupPoint() - request.dropPoint());
         double fare = calculateFare(distanceBetweenPoints * 15);
-        return rideDetailsMapper.rideBookingRequestToRideDetails(
-                request, selectedTaxi.getTaxiId(), fare);
+        return rideDetailsMapper.rideBookingRequestToRideDetails(request, selectedTaxi.getTaxiId(), fare);
     }
 
-    private TaxiDetails findMinimumEarnedTaxi(
-            List<TaxiDetails> allActiveTaxis, char pickupPoint, int minimumDistance) {
+    private TaxiDetails findMinimumEarnedTaxi(List<TaxiDetails> allActiveTaxis, char pickupPoint, int minimumDistance) {
         TaxiDetails selectedTaxi;
-        var availableTaxis =
-                allActiveTaxis.stream()
-                        .filter(
-                                taxi ->
-                                        Math.abs(taxi.getCurrentLocation() - pickupPoint)
-                                                == minimumDistance)
-                        .toList();
-        var availableTaxiIds = availableTaxis.stream().map(TaxiDetails::getTaxiId).toList();
+        var availableTaxis = allActiveTaxis.stream()
+                .filter(taxi -> Math.abs(taxi.getCurrentLocation() - pickupPoint) == minimumDistance)
+                .toList();
+        var availableTaxiIds =
+                availableTaxis.stream().map(TaxiDetails::getTaxiId).toList();
         List<AvailableTaxiFareDetails> availableTaxiFareDetails =
                 rideRepository.sumByRideDateAndTaxiIdIn(LocalDate.now(), availableTaxiIds);
         log.info("availableTaxiFareDetails -> {}", availableTaxiFareDetails);
         if (CollectionUtils.isEmpty(availableTaxiFareDetails)) {
             selectedTaxi = availableTaxis.get(0);
         } else {
-            var selectedTaxiId =
-                    availableTaxiFareDetails.stream()
-                            .min(Comparator.comparingDouble(AvailableTaxiFareDetails::getFare))
-                            .get()
-                            .getTaxiId();
-            selectedTaxi =
-                    availableTaxis.stream()
-                            .filter(taxi -> Objects.equals(selectedTaxiId, taxi.getTaxiId()))
-                            .findAny()
-                            .get();
+            var selectedTaxiId = availableTaxiFareDetails.stream()
+                    .min(Comparator.comparingDouble(AvailableTaxiFareDetails::getFare))
+                    .get()
+                    .getTaxiId();
+            selectedTaxi = availableTaxis.stream()
+                    .filter(taxi -> Objects.equals(selectedTaxiId, taxi.getTaxiId()))
+                    .findAny()
+                    .get();
         }
         return selectedTaxi;
     }
@@ -130,11 +119,9 @@ public class RideService {
                 .orElse(Integer.MAX_VALUE);
     }
 
-    private void findAndRemoveOnTripTaxis(
-            RideBookingRequest request, List<TaxiDetails> allActiveTaxis) {
-        List<OnTripTaxiDetails> onTripTaxiDetails =
-                rideRepository.findAllByRideDateAndDropTimeGreaterThanEqual(
-                        request.pickupTime().toLocalDate(), request.pickupTime());
+    private void findAndRemoveOnTripTaxis(RideBookingRequest request, List<TaxiDetails> allActiveTaxis) {
+        List<OnTripTaxiDetails> onTripTaxiDetails = rideRepository.findAllByRideDateAndDropTimeGreaterThanEqual(
+                request.pickupTime().toLocalDate(), request.pickupTime());
         List<Long> onTripTaxiIds =
                 onTripTaxiDetails.stream().map(OnTripTaxiDetails::getTaxiId).toList();
         allActiveTaxis.removeIf(taxi -> onTripTaxiIds.contains(taxi.getTaxiId()));

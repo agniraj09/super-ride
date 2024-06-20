@@ -41,10 +41,9 @@ public class TaxiControllerTest {
 
     @Test
     void testSaveTaxiDetailsWithMultipleTaxis() {
-        var request =
-                List.of(
-                        new AddTaxiRequest("Tata", "TN 59 BH 8191", "Arul", 'A'),
-                        new AddTaxiRequest("Maruti Suzuki", "TN 12 JK 1718", "Guru", 'A'));
+        var request = List.of(
+                new AddTaxiRequest("Tata", "TN 59 BH 8191", "Arul", 'A'),
+                new AddTaxiRequest("Maruti Suzuki", "TN 12 JK 1718", "Guru", 'A'));
         given().contentType(ContentType.JSON)
                 .body(request)
                 .when()

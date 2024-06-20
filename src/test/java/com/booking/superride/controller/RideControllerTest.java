@@ -30,41 +30,40 @@ public class RideControllerTest {
     private TaxiDetails taxi;
     private CustomerDetails customer;
 
-    @Autowired TaxiRepository taxiRepository;
+    @Autowired
+    TaxiRepository taxiRepository;
 
-    @Autowired RideRepository rideRepository;
+    @Autowired
+    RideRepository rideRepository;
 
-    @Autowired CustomerRepository customerRepository;
+    @Autowired
+    CustomerRepository customerRepository;
 
     @BeforeAll
     void setup() {
         deleteAllData();
         this.customer = customerRepository.save(new CustomerDetails().setCustomerName("Agniraj"));
-        this.taxi =
-                taxiRepository.save(
-                        new TaxiDetails()
-                                .setMake("Tata")
-                                .setDriverName("Arul")
-                                .setTaxiNumber("TN 59 BH 8191")
-                                .setCurrentLocation('A')
-                                .setStatus("Active"));
+        this.taxi = taxiRepository.save(new TaxiDetails()
+                .setMake("Tata")
+                .setDriverName("Arul")
+                .setTaxiNumber("TN 59 BH 8191")
+                .setCurrentLocation('A')
+                .setStatus("Active"));
     }
 
     @Test
     @Order(1)
     void testBookRide() {
-        var request =
-                new RideBookingRequest(customer.getCustomerId(), 'A', 'B', LocalDateTime.now());
-        var response =
-                given().contentType(ContentType.JSON)
-                        .body(request)
-                        .when()
-                        .post("/ride/book-ride")
-                        .then()
-                        .assertThat()
-                        .statusCode(200)
-                        .extract()
-                        .as(RideDetailsResponse.class);
+        var request = new RideBookingRequest(customer.getCustomerId(), 'A', 'B', LocalDateTime.now());
+        var response = given().contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/ride/book-ride")
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .as(RideDetailsResponse.class);
         assertTrue(response.rideDetails().rideId() > 0);
         assertEquals(response.rideDetails().taxiId(), taxi.getTaxiId());
         assertEquals(response.rideDetails().customerId(), customer.getCustomerId());
@@ -73,8 +72,7 @@ public class RideControllerTest {
     @Test
     @Order(2)
     void testBookRideWithNoAvailableTaxi() {
-        var request =
-                new RideBookingRequest(customer.getCustomerId(), 'A', 'B', LocalDateTime.now());
+        var request = new RideBookingRequest(customer.getCustomerId(), 'A', 'B', LocalDateTime.now());
         given().contentType(ContentType.JSON)
                 .body(request)
                 .when()
@@ -90,8 +88,7 @@ public class RideControllerTest {
         // Change taxi status to inactive first
         taxiRepository.save(taxi.setStatus("Inactive"));
 
-        var request =
-                new RideBookingRequest(customer.getCustomerId(), 'A', 'B', LocalDateTime.now());
+        var request = new RideBookingRequest(customer.getCustomerId(), 'A', 'B', LocalDateTime.now());
         given().contentType(ContentType.JSON)
                 .body(request)
                 .when()

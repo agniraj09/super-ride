@@ -24,6 +24,5 @@ public interface RideDetailsMapper {
         @Mapping(target = "taxiId", source = "taxiId"),
         @Mapping(target = "fare", source = "fare")
     })
-    RideDetails rideBookingRequestToRideDetails(
-            RideBookingRequest request, Long taxiId, Double fare);
+    RideDetails rideBookingRequestToRideDetails(RideBookingRequest request, Long taxiId, Double fare);
 }

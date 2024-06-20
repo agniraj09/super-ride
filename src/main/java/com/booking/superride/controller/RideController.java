@@ -18,8 +18,7 @@ public class RideController {
     private final RideService rideService;
 
     @PostMapping("/book-ride")
-    public ResponseEntity<RideDetailsResponse> bookRide(
-            @RequestBody RideBookingRequest rideBookingRequest) {
+    public ResponseEntity<RideDetailsResponse> bookRide(@RequestBody RideBookingRequest rideBookingRequest) {
         return ResponseEntity.ok(rideService.bookRide(rideBookingRequest));
     }
 }

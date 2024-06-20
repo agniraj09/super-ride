@@ -15,8 +15,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TaxiNotFoundException.class)
     ProblemDetail handleTaxiNotFoundException(TaxiNotFoundException exception) {
         log.error(exception.getMessage(), exception);
-        var problemDetail =
-                ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
         problemDetail.setTitle("Taxi not available");
         // problemDetail.setProperty("stackTrace", getStackTraceAsString(exception));
         return problemDetail;

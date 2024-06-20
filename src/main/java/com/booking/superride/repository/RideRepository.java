@@ -12,8 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface RideRepository extends JpaRepository<RideDetails, Long> {
 
-    List<OnTripTaxiDetails> findAllByRideDateAndDropTimeGreaterThanEqual(
-            LocalDate date, LocalDateTime dateTime);
+    List<OnTripTaxiDetails> findAllByRideDateAndDropTimeGreaterThanEqual(LocalDate date, LocalDateTime dateTime);
 
     @Query(
             value =

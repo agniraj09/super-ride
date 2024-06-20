@@ -20,14 +20,12 @@ public class TaxiController {
     private final TaxiService taxiService;
 
     @PostMapping("/add-taxi")
-    public ResponseEntity<TaxiDetailsDTO> saveTaxiDetails(
-            @RequestBody @Valid AddTaxiRequest addTaxiRequest) {
+    public ResponseEntity<TaxiDetailsDTO> saveTaxiDetails(@RequestBody @Valid AddTaxiRequest addTaxiRequest) {
         return ResponseEntity.ok(taxiService.saveTaxiDetails(addTaxiRequest));
     }
 
     @PostMapping("/bulk/add-taxi")
-    public ResponseEntity<List<TaxiDetailsDTO>> saveTaxiDetailsBulk(
-            @RequestBody List<AddTaxiRequest> addTaxiRequest) {
+    public ResponseEntity<List<TaxiDetailsDTO>> saveTaxiDetailsBulk(@RequestBody List<AddTaxiRequest> addTaxiRequest) {
         return ResponseEntity.ok(taxiService.saveTaxis(addTaxiRequest));
     }
 }
