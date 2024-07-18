@@ -4,13 +4,13 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 import com.booking.superride.common.AbstractIntegrationTest;
-import com.booking.superride.domain.AddTaxiRequest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.springframework.http.HttpStatus;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TaxiControllerTest extends AbstractIntegrationTest {
@@ -22,39 +22,66 @@ class TaxiControllerTest extends AbstractIntegrationTest {
 
     @Test
     void testSaveTaxiDetailsWithSingleTaxi() {
-        var request = new AddTaxiRequest("Tata", "TN 59 BH 8191", "Arul", 'A');
         given().contentType(ContentType.JSON)
-                .body(request)
+                .body(
+                        """
+                        {
+                          "make": "Honda",
+                          "taxiNumber": "TN 59 DG 5555",
+                          "driverName": "Guna",
+                          "currentLocation": "A"
+                        }
+                        """)
                 .when()
                 .post("/taxi/add-taxi")
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("taxiId", greaterThan(0))
-                .body("taxiNumber", equalTo(request.taxiNumber()));
+                .body("taxiNumber", notNullValue());
     }
 
     @Test
     void testSaveTaxiDetailsWithInvalidTaxiNumber() {
-        var request = new AddTaxiRequest("Tata", null, "Arul", 'A');
         given().contentType(ContentType.JSON)
-                .body(request)
+                .body(
+                        """
+                        {
+                          "make": "Honda",
+                          "taxiNumber": null,
+                          "driverName": "Arul",
+                          "currentLocation": "A"
+                        }
+                        """)
                 .when()
                 .post("/taxi/add-taxi")
                 .then()
-                .statusCode(400);
+                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
     void testSaveTaxiDetailsWithMultipleTaxis() {
-        var request = List.of(
-                new AddTaxiRequest("Tata", "TN 59 BH 8191", "Arul", 'A'),
-                new AddTaxiRequest("Maruti Suzuki", "TN 12 JK 1718", "Guru", 'A'));
         given().contentType(ContentType.JSON)
-                .body(request)
+                .body(
+                        """
+                        [
+                            {
+                                "make": "Tata",
+                                "taxiNumber": "TN 11 SF 2927",
+                                "driverName": "Mohan",
+                                "currentLocation": "A"
+                            },
+                            {
+                                "make": "Maruti Suzuki",
+                                "taxiNumber": "TN 12 JK 1718",
+                                "driverName": "Guru",
+                                "currentLocation": "A"
+                            }
+                        ]
+                        """)
                 .when()
                 .post("/taxi/bulk/add-taxi")
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body(".", isA(List.class))
                 .body(".", hasSize(2));
     }

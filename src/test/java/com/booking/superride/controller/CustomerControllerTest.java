@@ -4,12 +4,12 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 import com.booking.superride.common.AbstractIntegrationTest;
-import com.booking.superride.domain.CustomerDetailsDTO;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.springframework.http.HttpStatus;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CustomerControllerTest extends AbstractIntegrationTest {
@@ -23,11 +23,16 @@ class CustomerControllerTest extends AbstractIntegrationTest {
     void shouldGetAllCustomers() {
 
         given().contentType(ContentType.JSON)
-                .body(new CustomerDetailsDTO("Agniraj"))
+                .body(
+                        """
+                        {
+                            "customerName": "Surya"
+                        }
+                        """)
                 .when()
                 .post("/customer/add-customer")
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("customerName", equalTo("Agniraj"))
                 .body("customerId", greaterThan(0));
     }

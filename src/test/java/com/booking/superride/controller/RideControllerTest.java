@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.booking.superride.common.AbstractIntegrationTest;
-import com.booking.superride.domain.RideBookingRequest;
 import com.booking.superride.domain.RideDetailsResponse;
 import com.booking.superride.entity.CustomerDetails;
 import com.booking.superride.entity.TaxiDetails;
@@ -16,9 +15,9 @@ import com.booking.superride.repository.RideRepository;
 import com.booking.superride.repository.TaxiRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -52,14 +51,22 @@ class RideControllerTest extends AbstractIntegrationTest {
     @Test
     @Order(1)
     void testBookRide() {
-        var request = new RideBookingRequest(customer.getCustomerId(), 'A', 'B', LocalDateTime.now());
         var response = given().contentType(ContentType.JSON)
-                .body(request)
+                .body(
+                        """
+                        {
+                          "customerId": #customerId#,
+                          "pickupPoint": "A",
+                          "dropPoint": "B",
+                          "pickupTime": "2024-06-14T18:40:00.098Z"
+                        }
+                        """
+                                .replace("#customerId#", String.valueOf(customer.getCustomerId())))
                 .when()
                 .post("/ride/book-ride")
                 .then()
                 .assertThat()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .extract()
                 .as(RideDetailsResponse.class);
         assertTrue(response.rideDetails().rideId() > 0);
@@ -70,13 +77,21 @@ class RideControllerTest extends AbstractIntegrationTest {
     @Test
     @Order(2)
     void testBookRideWithNoAvailableTaxi() {
-        var request = new RideBookingRequest(customer.getCustomerId(), 'A', 'B', LocalDateTime.now());
         given().contentType(ContentType.JSON)
-                .body(request)
+                .body(
+                        """
+                        {
+                          "customerId": #customerId#,
+                          "pickupPoint": "A",
+                          "dropPoint": "B",
+                          "pickupTime": "2024-06-14T18:40:00.098Z"
+                        }
+                        """
+                                .replace("#customerId#", String.valueOf(customer.getCustomerId())))
                 .when()
                 .post("/ride/book-ride")
                 .then()
-                .statusCode(404)
+                .statusCode(HttpStatus.NOT_FOUND.value())
                 .body("detail", equalTo(ALL_TAXIS_ARE_IN_TRIP_ERROR));
     }
 
@@ -86,13 +101,21 @@ class RideControllerTest extends AbstractIntegrationTest {
         // Change taxi status to inactive first
         taxiRepository.save(taxi.setStatus("Inactive"));
 
-        var request = new RideBookingRequest(customer.getCustomerId(), 'A', 'B', LocalDateTime.now());
         given().contentType(ContentType.JSON)
-                .body(request)
+                .body(
+                        """
+                        {
+                          "customerId": #customerId#,
+                          "pickupPoint": "A",
+                          "dropPoint": "B",
+                          "pickupTime": "2024-06-14T18:40:00.098Z"
+                        }
+                        """
+                                .replace("#customerId#", String.valueOf(customer.getCustomerId())))
                 .when()
                 .post("/ride/book-ride")
                 .then()
-                .statusCode(404)
+                .statusCode(HttpStatus.NOT_FOUND.value())
                 .body("detail", equalTo(NO_ACTIVE_TAXI_FOUND_ERROR));
     }
 
@@ -100,10 +123,5 @@ class RideControllerTest extends AbstractIntegrationTest {
         rideRepository.deleteAll();
         customerRepository.deleteAll();
         taxiRepository.deleteAll();
-    }
-
-    @AfterAll
-    void cleanUp() {
-        deleteAllData();
     }
 }
