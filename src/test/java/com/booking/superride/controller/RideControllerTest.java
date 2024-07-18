@@ -19,6 +19,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RideControllerTest extends AbstractIntegrationTest {
@@ -58,10 +60,11 @@ class RideControllerTest extends AbstractIntegrationTest {
                           "customerId": #customerId#,
                           "pickupPoint": "A",
                           "dropPoint": "B",
-                          "pickupTime": "2024-06-14T18:40:00.098Z"
+                          "pickupTime": #pickUpTime#
                         }
                         """
-                                .replace("#customerId#", String.valueOf(customer.getCustomerId())))
+                                .replace("#customerId#", String.valueOf(customer.getCustomerId()))
+                                .replace("#pickUpTime#", LocalDateTime.now().toString()))
                 .when()
                 .post("/ride/book")
                 .then()
@@ -84,10 +87,11 @@ class RideControllerTest extends AbstractIntegrationTest {
                           "customerId": #customerId#,
                           "pickupPoint": "A",
                           "dropPoint": "B",
-                          "pickupTime": "2024-06-14T18:40:00.098Z"
+                          "pickupTime": "#pickUpTime#"
                         }
                         """
-                                .replace("#customerId#", String.valueOf(customer.getCustomerId())))
+                                .replace("#customerId#", String.valueOf(customer.getCustomerId()))
+                                .replace("#pickUpTime#", LocalDateTime.now().toString()))
                 .when()
                 .post("/ride/book")
                 .then()
@@ -108,10 +112,11 @@ class RideControllerTest extends AbstractIntegrationTest {
                           "customerId": #customerId#,
                           "pickupPoint": "A",
                           "dropPoint": "B",
-                          "pickupTime": "2024-06-14T18:40:00.098Z"
+                          "pickupTime": "#pickUpTime#"
                         }
                         """
-                                .replace("#customerId#", String.valueOf(customer.getCustomerId())))
+                                .replace("#customerId#", String.valueOf(customer.getCustomerId()))
+                                .replace("#pickUpTime#", LocalDateTime.now().toString()))
                 .when()
                 .post("/ride/book")
                 .then()
