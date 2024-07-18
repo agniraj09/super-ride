@@ -59,7 +59,7 @@ class RideControllerTest extends AbstractIntegrationTest {
                           "customerId": #customerId#,
                           "pickupPoint": "A",
                           "dropPoint": "B",
-                          "pickupTime": #pickUpTime#
+                          "pickupTime": "#pickUpTime#"
                         }
                         """
                                 .replace("#customerId#", String.valueOf(customer.getCustomerId()))
