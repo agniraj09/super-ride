@@ -18,14 +18,12 @@ import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RideControllerTest extends AbstractIntegrationTest {
-
-    private TaxiDetails taxi;
-    private CustomerDetails customer;
 
     @Autowired
     TaxiRepository taxiRepository;
@@ -35,6 +33,9 @@ class RideControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     CustomerRepository customerRepository;
+
+    private TaxiDetails taxi;
+    private CustomerDetails customer;
 
     @BeforeAll
     void setup() {
@@ -120,7 +121,12 @@ class RideControllerTest extends AbstractIntegrationTest {
                 .post("/ride/book")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
-                .body("detail", equalTo(NO_ACTIVE_TAXI_FOUND_ERROR));
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
+                .body("detail", equalTo(NO_ACTIVE_TAXI_FOUND_ERROR))
+                .body("type", equalTo(NO_ACTIVE_TAXI_FOUND_ERROR))
+                .body("title", equalTo(NO_ACTIVE_TAXI_FOUND_ERROR))
+                .body("status", equalTo("404"))
+                .body("instance", equalTo("/ride/book"));
     }
 
     private void deleteAllData() {

@@ -9,10 +9,8 @@ import io.restassured.http.ContentType;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.HttpStatus;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TaxiControllerTest extends AbstractIntegrationTest {
 
     @BeforeAll
@@ -37,7 +35,7 @@ class TaxiControllerTest extends AbstractIntegrationTest {
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("taxiId", greaterThan(0))
-                .body("taxiNumber", notNullValue());
+                .body("taxiNumber", is("TN 59 DG 5555"));
     }
 
     @Test
