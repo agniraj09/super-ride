@@ -63,7 +63,7 @@ class RideControllerTest extends AbstractIntegrationTest {
                         """
                                 .replace("#customerId#", String.valueOf(customer.getCustomerId())))
                 .when()
-                .post("/ride/book-ride")
+                .post("/ride/book")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
@@ -89,7 +89,7 @@ class RideControllerTest extends AbstractIntegrationTest {
                         """
                                 .replace("#customerId#", String.valueOf(customer.getCustomerId())))
                 .when()
-                .post("/ride/book-ride")
+                .post("/ride/book")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body("detail", equalTo(ALL_TAXIS_ARE_IN_TRIP_ERROR));
@@ -113,7 +113,7 @@ class RideControllerTest extends AbstractIntegrationTest {
                         """
                                 .replace("#customerId#", String.valueOf(customer.getCustomerId())))
                 .when()
-                .post("/ride/book-ride")
+                .post("/ride/book")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body("detail", equalTo(NO_ACTIVE_TAXI_FOUND_ERROR));

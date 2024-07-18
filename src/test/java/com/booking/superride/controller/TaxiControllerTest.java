@@ -33,7 +33,7 @@ class TaxiControllerTest extends AbstractIntegrationTest {
                         }
                         """)
                 .when()
-                .post("/taxi/add-taxi")
+                .post("/taxi/register")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("taxiId", greaterThan(0))
@@ -53,7 +53,7 @@ class TaxiControllerTest extends AbstractIntegrationTest {
                         }
                         """)
                 .when()
-                .post("/taxi/add-taxi")
+                .post("/taxi/register")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
@@ -79,7 +79,7 @@ class TaxiControllerTest extends AbstractIntegrationTest {
                         ]
                         """)
                 .when()
-                .post("/taxi/bulk/add-taxi")
+                .post("/taxi/bulk/register")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body(".", isA(List.class))

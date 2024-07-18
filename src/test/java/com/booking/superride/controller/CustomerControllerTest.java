@@ -30,7 +30,7 @@ class CustomerControllerTest extends AbstractIntegrationTest {
                         }
                         """)
                 .when()
-                .post("/customer/add-customer")
+                .post("/customer/register")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("customerName", equalTo("Agniraj"))
