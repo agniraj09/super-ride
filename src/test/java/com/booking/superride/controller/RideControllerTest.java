@@ -45,6 +45,10 @@ class RideControllerTest extends AbstractIntegrationTest {
     void setup() {
         RestAssured.port = localServerPort;
         deleteAllData();
+        initializeTestData();
+    }
+
+    private void initializeTestData() {
         this.customer = customerRepository.save(new CustomerDetails().setCustomerName("Agniraj"));
         this.taxi = taxiRepository.save(new TaxiDetails()
                 .setMake("Tata")
