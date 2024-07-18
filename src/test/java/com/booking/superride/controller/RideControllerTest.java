@@ -3,8 +3,8 @@ package com.booking.superride.controller;
 import static com.booking.superride.constants.AppConstants.ALL_TAXIS_ARE_IN_TRIP_ERROR;
 import static com.booking.superride.constants.AppConstants.NO_ACTIVE_TAXI_FOUND_ERROR;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 import com.booking.superride.common.AbstractIntegrationTest;
 import com.booking.superride.domain.RideDetailsResponse;
@@ -16,7 +16,11 @@ import com.booking.superride.repository.TaxiRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -68,13 +72,13 @@ class RideControllerTest extends AbstractIntegrationTest {
                 .when()
                 .post("/ride/book")
                 .then()
-                .assertThat()
                 .statusCode(HttpStatus.OK.value())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .extract()
                 .as(RideDetailsResponse.class);
-        assertTrue(response.rideDetails().rideId() > 0);
-        assertEquals(response.rideDetails().taxiId(), taxi.getTaxiId());
-        assertEquals(response.rideDetails().customerId(), customer.getCustomerId());
+        assertThat(response.rideDetails().rideId()).isGreaterThan(0);
+        assertThat(response.rideDetails().taxiId()).isEqualTo(taxi.getTaxiId());
+        assertThat(response.rideDetails().customerId()).isEqualTo(customer.getCustomerId());
     }
 
     @Test
@@ -96,7 +100,12 @@ class RideControllerTest extends AbstractIntegrationTest {
                 .post("/ride/book")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
-                .body("detail", equalTo(ALL_TAXIS_ARE_IN_TRIP_ERROR));
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
+                .body("detail", equalTo(ALL_TAXIS_ARE_IN_TRIP_ERROR))
+                .body("type", equalTo("about:blank"))
+                .body("title", equalTo("Taxi not available"))
+                .body("status", equalTo(404))
+                .body("instance", equalTo("/ride/book"));
     }
 
     @Test
@@ -123,9 +132,9 @@ class RideControllerTest extends AbstractIntegrationTest {
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
                 .body("detail", equalTo(NO_ACTIVE_TAXI_FOUND_ERROR))
-                .body("type", equalTo(NO_ACTIVE_TAXI_FOUND_ERROR))
-                .body("title", equalTo(NO_ACTIVE_TAXI_FOUND_ERROR))
-                .body("status", equalTo("404"))
+                .body("type", equalTo("about:blank"))
+                .body("title", equalTo("Taxi not available"))
+                .body("status", equalTo(404))
                 .body("instance", equalTo("/ride/book"));
     }
 

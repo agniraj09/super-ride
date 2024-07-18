@@ -33,7 +33,7 @@ public class RideService {
     private final RideDetailsMapper rideDetailsMapper;
     private final TransactionTemplate transactionTemplate;
 
-    public RideService(
+    RideService(
             RideRepository rideRepository,
             TaxiRepository taxiRepository,
             RideDetailsMapper rideDetailsMapper,

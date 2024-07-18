@@ -9,7 +9,9 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 class CustomerControllerTest extends AbstractIntegrationTest {
 
@@ -32,6 +34,7 @@ class CustomerControllerTest extends AbstractIntegrationTest {
                 .post("/customer/register")
                 .then()
                 .statusCode(HttpStatus.OK.value())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body("customerName", is("Surya"))
                 .body("customerId", greaterThan(0));
     }
