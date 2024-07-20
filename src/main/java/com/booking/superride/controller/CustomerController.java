@@ -14,13 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/customer")
 @RequiredArgsConstructor
-public class CustomerController {
+class CustomerController {
 
     private final CustomerService customerService;
 
-    @PostMapping("/add-customer")
-    public ResponseEntity<CustomerDetails> saveCustomerDetails(@RequestBody @Valid CustomerDetailsDTO customerDetailsDTO){
+    @PostMapping("/register")
+    ResponseEntity<CustomerDetails> saveCustomerDetails(@RequestBody @Valid CustomerDetailsDTO customerDetailsDTO) {
         return ResponseEntity.ok(customerService.saveCustomerDetails(customerDetailsDTO));
     }
-
 }

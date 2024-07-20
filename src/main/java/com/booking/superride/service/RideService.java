@@ -12,6 +12,10 @@ import com.booking.superride.exception.TaxiNotFoundException;
 import com.booking.superride.mapper.RideDetailsMapper;
 import com.booking.superride.repository.RideRepository;
 import com.booking.superride.repository.TaxiRepository;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,11 +23,6 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
-
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -34,17 +33,17 @@ public class RideService {
     private final RideDetailsMapper rideDetailsMapper;
     private final TransactionTemplate transactionTemplate;
 
-    public RideService(RideRepository rideRepository,
-                       TaxiRepository taxiRepository,
-                       RideDetailsMapper rideDetailsMapper,
-                       TransactionTemplate transactionTemplate) {
+    RideService(
+            RideRepository rideRepository,
+            TaxiRepository taxiRepository,
+            RideDetailsMapper rideDetailsMapper,
+            TransactionTemplate transactionTemplate) {
         this.rideRepository = rideRepository;
         this.taxiRepository = taxiRepository;
         this.rideDetailsMapper = rideDetailsMapper;
         transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         this.transactionTemplate = transactionTemplate;
     }
-
 
     public RideDetailsResponse bookRide(RideBookingRequest request) {
         TaxiDetails selectedTaxi;
@@ -79,9 +78,7 @@ public class RideService {
         });
 
         return new RideDetailsResponse(
-                HttpStatus.OK.getReasonPhrase(),
-                "Taxi booked.",
-                rideDetailsMapper.detailsToDTO(bookedTaxi));
+                HttpStatus.OK.getReasonPhrase(), "Taxi booked.", rideDetailsMapper.detailsToDTO(bookedTaxi));
     }
 
     private RideDetails buildRideDetails(RideBookingRequest request, TaxiDetails selectedTaxi) {
@@ -95,7 +92,8 @@ public class RideService {
         var availableTaxis = allActiveTaxis.stream()
                 .filter(taxi -> Math.abs(taxi.getCurrentLocation() - pickupPoint) == minimumDistance)
                 .toList();
-        var availableTaxiIds = availableTaxis.stream().map(TaxiDetails::getTaxiId).toList();
+        var availableTaxiIds =
+                availableTaxis.stream().map(TaxiDetails::getTaxiId).toList();
         List<AvailableTaxiFareDetails> availableTaxiFareDetails =
                 rideRepository.sumByRideDateAndTaxiIdIn(LocalDate.now(), availableTaxiIds);
         log.info("availableTaxiFareDetails -> {}", availableTaxiFareDetails);
@@ -106,7 +104,10 @@ public class RideService {
                     .min(Comparator.comparingDouble(AvailableTaxiFareDetails::getFare))
                     .get()
                     .getTaxiId();
-            selectedTaxi = availableTaxis.stream().filter(taxi -> Objects.equals(selectedTaxiId, taxi.getTaxiId())).findAny().get();
+            selectedTaxi = availableTaxis.stream()
+                    .filter(taxi -> Objects.equals(selectedTaxiId, taxi.getTaxiId()))
+                    .findAny()
+                    .get();
         }
         return selectedTaxi;
     }
@@ -119,10 +120,10 @@ public class RideService {
     }
 
     private void findAndRemoveOnTripTaxis(RideBookingRequest request, List<TaxiDetails> allActiveTaxis) {
-        List<OnTripTaxiDetails> onTripTaxiDetails =
-                rideRepository.findAllByRideDateAndDropTimeGreaterThanEqual(request.pickupTime().toLocalDate(),
-                        request.pickupTime());
-        List<Long> onTripTaxiIds = onTripTaxiDetails.stream().map(OnTripTaxiDetails::getTaxiId).toList();
+        List<OnTripTaxiDetails> onTripTaxiDetails = rideRepository.findAllByRideDateAndDropTimeGreaterThanEqual(
+                request.pickupTime().toLocalDate(), request.pickupTime());
+        List<Long> onTripTaxiIds =
+                onTripTaxiDetails.stream().map(OnTripTaxiDetails::getTaxiId).toList();
         allActiveTaxis.removeIf(taxi -> onTripTaxiIds.contains(taxi.getTaxiId()));
     }
 
