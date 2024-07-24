@@ -5,7 +5,6 @@ import com.booking.superride.domain.AddTaxiRequest;
 import com.booking.superride.exception.DuplicateDataException;
 import com.booking.superride.repository.TaxiRepository;
 import java.util.List;
-
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
