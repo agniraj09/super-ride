@@ -29,7 +29,7 @@ import org.springframework.util.CollectionUtils;
 @Transactional(readOnly = true)
 public class RideService {
 
-    Logger log = LoggerFactory.getLogger(RideService.class);
+    private static final Logger log = LoggerFactory.getLogger(RideService.class);
 
     private final RideRepository rideRepository;
     private final TaxiRepository taxiRepository;

@@ -17,7 +17,7 @@ class TaxiController {
 
     private final TaxiService taxiService;
 
-    public TaxiController(TaxiService taxiService) {
+    TaxiController(TaxiService taxiService) {
         this.taxiService = taxiService;
     }
 

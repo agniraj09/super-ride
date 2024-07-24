@@ -14,7 +14,7 @@ public class TaxiService {
     private final TaxiMapper taxiMapper;
     private final TaxiRepository taxiRepository;
 
-    public TaxiService(TaxiMapper taxiMapper, TaxiRepository taxiRepository) {
+    TaxiService(TaxiMapper taxiMapper, TaxiRepository taxiRepository) {
         this.taxiMapper = taxiMapper;
         this.taxiRepository = taxiRepository;
     }

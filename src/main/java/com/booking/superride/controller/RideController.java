@@ -15,7 +15,7 @@ class RideController {
 
     private final RideService rideService;
 
-    public RideController(RideService rideService) {
+    RideController(RideService rideService) {
         this.rideService = rideService;
     }
 
