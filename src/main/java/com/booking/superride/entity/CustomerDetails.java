@@ -14,6 +14,21 @@ public class CustomerDetails {
     @Column(name = "customername")
     private String customerName;
 
+    @Column(name = "mobilenumber")
+    private Long mobileNumber;
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public Long getMobileNumber() {
+        return mobileNumber;
+    }
+
     public CustomerDetails setCustomerId(Long customerId) {
         this.customerId = customerId;
         return this;
@@ -24,11 +39,8 @@ public class CustomerDetails {
         return this;
     }
 
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public String getCustomerName() {
-        return customerName;
+    public CustomerDetails setMobileNumber(Long mobileNumber) {
+        this.mobileNumber = mobileNumber;
+        return this;
     }
 }

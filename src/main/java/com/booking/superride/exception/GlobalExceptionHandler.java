@@ -23,6 +23,14 @@ class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(DuplicateDataException.class)
+    ProblemDetail handleDuplicateDataException(DuplicateDataException exception) {
+        log.error(exception.getMessage(), exception);
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+        problemDetail.setTitle("Duplicate data");
+        return problemDetail;
+    }
+
     private String getStackTraceAsString(Exception exception) {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
