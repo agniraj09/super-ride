@@ -3,9 +3,7 @@ package com.booking.superride.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import lombok.Getter;
 
-@Getter
 @Entity
 @Table(name = "ride_details")
 public class RideDetails {
@@ -90,5 +88,45 @@ public class RideDetails {
     public RideDetails setDropTime(LocalDateTime dropTime) {
         this.dropTime = dropTime;
         return this;
+    }
+
+    public Long getRideId() {
+        return rideId;
+    }
+
+    public Long getTaxiId() {
+        return taxiId;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public LocalDate getRideDate() {
+        return rideDate;
+    }
+
+    public char getPickupPoint() {
+        return pickupPoint;
+    }
+
+    public char getDropPoint() {
+        return dropPoint;
+    }
+
+    public int getDistance() {
+        return distance;
+    }
+
+    public double getFare() {
+        return fare;
+    }
+
+    public LocalDateTime getPickupTime() {
+        return pickupTime;
+    }
+
+    public LocalDateTime getDropTime() {
+        return dropTime;
     }
 }

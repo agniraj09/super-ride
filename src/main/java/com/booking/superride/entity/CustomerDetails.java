@@ -1,9 +1,7 @@
 package com.booking.superride.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
 
-@Getter
 @Entity
 @Table(name = "customer_details")
 public class CustomerDetails {
@@ -24,5 +22,13 @@ public class CustomerDetails {
     public CustomerDetails setCustomerName(String customerName) {
         this.customerName = customerName;
         return this;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
     }
 }

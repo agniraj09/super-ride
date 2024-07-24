@@ -16,7 +16,8 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
@@ -24,10 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 
-@Slf4j
 @Service
 @Transactional(readOnly = true)
 public class RideService {
+
+    Logger log = LoggerFactory.getLogger(RideService.class);
+
     private final RideRepository rideRepository;
     private final TaxiRepository taxiRepository;
     private final RideDetailsMapper rideDetailsMapper;

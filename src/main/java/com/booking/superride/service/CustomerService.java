@@ -4,16 +4,19 @@ import com.booking.superride.domain.CustomerDetailsDTO;
 import com.booking.superride.entity.CustomerDetails;
 import com.booking.superride.mapper.CustomerMapper;
 import com.booking.superride.repository.CustomerRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class CustomerService {
 
-    private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final CustomerRepository customerRepository;
+
+    public CustomerService(CustomerMapper customerMapper, CustomerRepository customerRepository) {
+        this.customerMapper = customerMapper;
+        this.customerRepository = customerRepository;
+    }
 
     @Transactional
     public CustomerDetails saveCustomerDetails(CustomerDetailsDTO customerDetailsDTO) {
