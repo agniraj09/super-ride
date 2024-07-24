@@ -5,16 +5,19 @@ import com.booking.superride.domain.TaxiDetailsDTO;
 import com.booking.superride.mapper.TaxiMapper;
 import com.booking.superride.repository.TaxiRepository;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class TaxiService {
 
     private final TaxiMapper taxiMapper;
     private final TaxiRepository taxiRepository;
+
+    TaxiService(TaxiMapper taxiMapper, TaxiRepository taxiRepository) {
+        this.taxiMapper = taxiMapper;
+        this.taxiRepository = taxiRepository;
+    }
 
     @Transactional
     public TaxiDetailsDTO saveTaxiDetails(AddTaxiRequest addTaxiRequest) {

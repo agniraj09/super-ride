@@ -1,9 +1,7 @@
 package com.booking.superride.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
 
-@Getter
 @Entity
 @Table(name = "taxi_details")
 public class TaxiDetails {
@@ -55,5 +53,29 @@ public class TaxiDetails {
     public TaxiDetails setStatus(String status) {
         this.status = status;
         return this;
+    }
+
+    public Long getTaxiId() {
+        return taxiId;
+    }
+
+    public String getMake() {
+        return make;
+    }
+
+    public String getTaxiNumber() {
+        return taxiNumber;
+    }
+
+    public char getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public String getDriverName() {
+        return driverName;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

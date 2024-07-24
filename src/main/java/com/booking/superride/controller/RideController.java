@@ -3,7 +3,6 @@ package com.booking.superride.controller;
 import com.booking.superride.domain.RideBookingRequest;
 import com.booking.superride.domain.RideDetailsResponse;
 import com.booking.superride.service.RideService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,10 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/ride")
-@RequiredArgsConstructor
 class RideController {
 
     private final RideService rideService;
+
+    RideController(RideService rideService) {
+        this.rideService = rideService;
+    }
 
     @PostMapping("/book")
     ResponseEntity<RideDetailsResponse> bookRide(@RequestBody RideBookingRequest rideBookingRequest) {
