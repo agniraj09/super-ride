@@ -5,8 +5,10 @@ import com.booking.superride.domain.CustomerDetailsDTO;
 import com.booking.superride.exception.DuplicateDataException;
 import com.booking.superride.repository.CustomerRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional(readOnly = true)
 public class CustomerDetailsValidator {
 
     private final CustomerRepository customerRepository;

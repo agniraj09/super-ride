@@ -1,6 +1,6 @@
 package com.booking.superride.entity.projections;
 
-public interface TaxiNumber {
+public interface TaxiNumberDetails {
 
     String getTaxiNumber();
 }
