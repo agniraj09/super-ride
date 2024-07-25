@@ -3,6 +3,7 @@ package com.booking.superride.controller;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
@@ -62,7 +63,7 @@ class TaxiControllerTest extends AbstractIntegrationTest {
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
-                .body("detail", equalTo("Invalid request content."))
+                .body("detail", hasItems("taxiNumber cannot be blank"))
                 .body("type", equalTo("about:blank"))
                 .body("title", equalTo("Bad Request"))
                 .body("status", equalTo(400))
