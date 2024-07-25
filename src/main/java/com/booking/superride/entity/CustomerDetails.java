@@ -15,7 +15,7 @@ public class CustomerDetails {
     private String customerName;
 
     @Column(name = "mobilenumber")
-    private Long mobileNumber;
+    private String mobileNumber;
 
     public Long getCustomerId() {
         return customerId;
@@ -25,7 +25,7 @@ public class CustomerDetails {
         return customerName;
     }
 
-    public Long getMobileNumber() {
+    public String getMobileNumber() {
         return mobileNumber;
     }
 
@@ -39,7 +39,7 @@ public class CustomerDetails {
         return this;
     }
 
-    public CustomerDetails setMobileNumber(Long mobileNumber) {
+    public CustomerDetails setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
         return this;
     }

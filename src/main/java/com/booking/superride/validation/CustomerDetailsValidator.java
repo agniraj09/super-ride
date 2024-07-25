@@ -11,7 +11,7 @@ public class CustomerDetailsValidator {
 
     private final CustomerRepository customerRepository;
 
-    public CustomerDetailsValidator(CustomerRepository customerRepository) {
+    CustomerDetailsValidator(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
 

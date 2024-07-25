@@ -49,7 +49,8 @@ class RideControllerTest extends AbstractIntegrationTest {
     }
 
     private void initializeTestData() {
-        this.customer = customerRepository.save(new CustomerDetails().setCustomerName("Agniraj"));
+        this.customer = customerRepository.save(
+                new CustomerDetails().setCustomerName("Agniraj").setMobileNumber("9898787898"));
         this.taxi = taxiRepository.save(new TaxiDetails()
                 .setMake("Tata")
                 .setDriverName("Arul")

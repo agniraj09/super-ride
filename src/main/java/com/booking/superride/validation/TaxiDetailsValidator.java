@@ -13,7 +13,7 @@ public class TaxiDetailsValidator {
 
     private final TaxiRepository taxiRepository;
 
-    public TaxiDetailsValidator(TaxiRepository taxiRepository) {
+    TaxiDetailsValidator(TaxiRepository taxiRepository) {
         this.taxiRepository = taxiRepository;
     }
 
