@@ -13,15 +13,11 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TaxiControllerTest extends AbstractIntegrationTest {
 
     @BeforeAll
@@ -30,7 +26,6 @@ class TaxiControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(1)
     void testSaveTaxiDetailsWithInvalidTaxiNumber() {
         given().contentType(ContentType.JSON)
                 .body(
@@ -56,7 +51,6 @@ class TaxiControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(2)
     void testSaveTaxiDetailsWithSingleTaxi() {
         given().contentType(ContentType.JSON)
                 .body(
@@ -78,24 +72,29 @@ class TaxiControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(3)
     void testSaveTaxiDetailsWithDuplicateTaxi() {
-        given().contentType(ContentType.JSON)
-                .body(
-                        """
+        String request =
+                """
                         {
                           "make": "Honda",
-                          "taxiNumber": "TN 59 DG 5555",
+                          "taxiNumber": "TN 60 DG 5566",
                           "driverName": "Guna",
                           "currentLocation": "A"
                         }
-                        """)
+                        """;
+
+        // Register taxi details
+        given().contentType(ContentType.JSON).body(request).when().post("/taxi/register");
+
+        // Register same taxi details to test idempotency validation
+        given().contentType(ContentType.JSON)
+                .body(request)
                 .when()
                 .post("/taxi/register")
                 .then()
                 .statusCode(HttpStatus.CONFLICT.value())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
-                .body("detail", equalTo("Taxi already exists for following taxi numbers [TN 59 DG 5555]"))
+                .body("detail", equalTo("Taxi already exists for following taxi numbers [TN 60 DG 5566]"))
                 .body("type", equalTo("about:blank"))
                 .body("title", equalTo("Duplicate data"))
                 .body("status", equalTo(HttpStatus.CONFLICT.value()))
@@ -103,7 +102,6 @@ class TaxiControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(4)
     void testSaveTaxiDetailsWithMultipleTaxis() {
         given().contentType(ContentType.JSON)
                 .body(
@@ -133,26 +131,32 @@ class TaxiControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(5)
     void testSaveTaxiDetailsWithDuplicateTaxis() {
-        given().contentType(ContentType.JSON)
-                .body(
-                        """
+
+        String request =
+                """
                     [
                         {
                             "make": "Tata",
-                            "taxiNumber": "TN 11 SF 2927",
+                            "taxiNumber": "TN 12 SF 1212",
                             "driverName": "Mohan",
                             "currentLocation": "A"
                         },
                         {
                             "make": "Maruti Suzuki",
-                            "taxiNumber": "TN 12 JK 1718",
+                            "taxiNumber": "TN 13 JK 1313",
                             "driverName": "Guru",
                             "currentLocation": "A"
                         }
                     ]
-                    """)
+                    """;
+
+        // Register taxi details
+        given().contentType(ContentType.JSON).body(request).when().post("/taxi/bulk/register");
+
+        // Register same taxi details to test idemptency validation
+        given().contentType(ContentType.JSON)
+                .body(request)
                 .when()
                 .post("/taxi/bulk/register")
                 .then()
@@ -160,7 +164,7 @@ class TaxiControllerTest extends AbstractIntegrationTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
                 .body(
                         "detail",
-                        equalTo("Taxi already exists for following taxi numbers [TN 11 SF 2927, TN 12 JK 1718]"))
+                        equalTo("Taxi already exists for following taxi numbers [TN 12 SF 1212, TN 13 JK 1313]"))
                 .body("type", equalTo("about:blank"))
                 .body("title", equalTo("Duplicate data"))
                 .body("status", equalTo(HttpStatus.CONFLICT.value()))

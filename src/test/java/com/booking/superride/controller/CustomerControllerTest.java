@@ -11,16 +11,14 @@ import com.booking.superride.common.AbstractIntegrationTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CustomerControllerTest extends AbstractIntegrationTest {
+
+    private static final String CUSTOMER_REGISTER_URI = "/customer/register";
 
     @BeforeAll
     void setUp() {
@@ -28,7 +26,6 @@ class CustomerControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(1)
     void testCustomerRegistrationWithInvalidName() {
 
         given().contentType(ContentType.JSON)
@@ -40,7 +37,7 @@ class CustomerControllerTest extends AbstractIntegrationTest {
                         }
                         """)
                 .when()
-                .post("/customer/register")
+                .post(CUSTOMER_REGISTER_URI)
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
@@ -48,11 +45,10 @@ class CustomerControllerTest extends AbstractIntegrationTest {
                 .body("type", equalTo("about:blank"))
                 .body("title", equalTo("Bad Request"))
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
-                .body("instance", equalTo("/customer/register"));
+                .body("instance", equalTo(CUSTOMER_REGISTER_URI));
     }
 
     @Test
-    @Order(2)
     void testCustomerRegistration() {
 
         given().contentType(ContentType.JSON)
@@ -64,7 +60,7 @@ class CustomerControllerTest extends AbstractIntegrationTest {
                         }
                         """)
                 .when()
-                .post("/customer/register")
+                .post(CUSTOMER_REGISTER_URI)
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -74,26 +70,30 @@ class CustomerControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(3)
     void testCustomerRegistrationForDuplicateCustomer() {
 
-        given().contentType(ContentType.JSON)
-                .body(
-                        """
+        String requestBody =
+                """
                         {
-                            "customerName": "Surya",
-                            "mobileNumber" : "9797979777"
+                            "customerName": "Anbu",
+                            "mobileNumber" : "9876543210"
                         }
-                        """)
+                        """;
+        // Register customer details
+        given().contentType(ContentType.JSON).body(requestBody).when().post(CUSTOMER_REGISTER_URI);
+
+        // Register same customer details again to test idempotency validation
+        given().contentType(ContentType.JSON)
+                .body(requestBody)
                 .when()
-                .post("/customer/register")
+                .post(CUSTOMER_REGISTER_URI)
                 .then()
                 .statusCode(HttpStatus.CONFLICT.value())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE)
-                .body("detail", equalTo("Customer already exists with following mobile number 9797979777"))
+                .body("detail", equalTo("Customer already exists with following mobile number 9876543210"))
                 .body("type", equalTo("about:blank"))
                 .body("title", equalTo("Duplicate data"))
                 .body("status", equalTo(HttpStatus.CONFLICT.value()))
-                .body("instance", equalTo("/customer/register"));
+                .body("instance", equalTo(CUSTOMER_REGISTER_URI));
     }
 }

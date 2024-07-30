@@ -17,16 +17,12 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RideControllerTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -44,24 +40,28 @@ class RideControllerTest extends AbstractIntegrationTest {
     @BeforeAll
     void setup() {
         RestAssured.port = localServerPort;
-        deleteAllData();
         initializeTestData();
     }
 
     private void initializeTestData() {
         this.customer = customerRepository.save(
                 new CustomerDetails().setCustomerName("Agniraj").setMobileNumber("9898787898"));
-        this.taxi = taxiRepository.save(new TaxiDetails()
-                .setMake("Tata")
-                .setDriverName("Arul")
-                .setTaxiNumber("TN 59 BH 8191")
-                .setCurrentLocation('A')
-                .setStatus("Active"));
     }
 
     @Test
-    @Order(1)
     void testBookRide() {
+        // Delete all data
+        deleteTaxiAndRideData();
+
+        // Insert a new taxi with active status
+        var taxi = taxiRepository.save(new TaxiDetails()
+                .setMake("Tata")
+                .setDriverName("Guna")
+                .setTaxiNumber("TN 44 BH 3245")
+                .setCurrentLocation('A')
+                .setStatus("Active"));
+
+        // Book a ride - ride should be booked
         var response = given().contentType(ContentType.JSON)
                 .body(
                         """
@@ -87,8 +87,22 @@ class RideControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(2)
     void testBookRideWithNoAvailableTaxi() {
+
+        var pickupTime = LocalDateTime.now();
+
+        // Delete all data
+        deleteTaxiAndRideData();
+
+        // Insert a new taxi with active status
+        var taxi = taxiRepository.save(new TaxiDetails()
+                .setMake("Tata")
+                .setDriverName("Guna")
+                .setTaxiNumber("TN 44 BH 3245")
+                .setCurrentLocation('A')
+                .setStatus("Active"));
+
+        // Book a ride - ride will be booked
         given().contentType(ContentType.JSON)
                 .body(
                         """
@@ -100,7 +114,23 @@ class RideControllerTest extends AbstractIntegrationTest {
                         }
                         """
                                 .replace("#customerId#", String.valueOf(customer.getCustomerId()))
-                                .replace("#pickUpTime#", LocalDateTime.now().toString()))
+                                .replace("#pickUpTime#", pickupTime.toString()))
+                .when()
+                .post("/ride/book");
+
+        // Try to book a ride again - ride will not be booked as taxi would be on-ride already
+        given().contentType(ContentType.JSON)
+                .body(
+                        """
+                        {
+                          "customerId": #customerId#,
+                          "pickupPoint": "A",
+                          "dropPoint": "B",
+                          "pickupTime": "#pickUpTime#"
+                        }
+                        """
+                                .replace("#customerId#", String.valueOf(customer.getCustomerId()))
+                                .replace("#pickUpTime#", pickupTime.toString()))
                 .when()
                 .post("/ride/book")
                 .then()
@@ -114,11 +144,19 @@ class RideControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Order(3)
     void testBookRideWithNoActiveTaxi() {
-        // Change taxi status to inactive first
-        taxiRepository.save(taxi.setStatus("Inactive"));
+        // Delete all data
+        deleteTaxiAndRideData();
 
+        // Insert a taxi with inactive status
+        var taxi = taxiRepository.save(new TaxiDetails()
+                .setMake("Tata")
+                .setDriverName("Guna")
+                .setTaxiNumber("TN 44 BH 3245")
+                .setCurrentLocation('A')
+                .setStatus("Inactive"));
+
+        // Try to book a ride now
         given().contentType(ContentType.JSON)
                 .body(
                         """
@@ -143,9 +181,8 @@ class RideControllerTest extends AbstractIntegrationTest {
                 .body("instance", equalTo("/ride/book"));
     }
 
-    private void deleteAllData() {
+    private void deleteTaxiAndRideData() {
         rideRepository.deleteAll();
-        customerRepository.deleteAll();
         taxiRepository.deleteAll();
     }
 }
