@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CustomerRepository extends JpaRepository<CustomerDetails, Long> {
 
-    public boolean existsByMobileNumber(String mobileNumber);
+    boolean existsByMobileNumber(String mobileNumber);
 }
