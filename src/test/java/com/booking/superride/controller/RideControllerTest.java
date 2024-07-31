@@ -17,6 +17,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -34,13 +35,18 @@ class RideControllerTest extends AbstractIntegrationTest {
     @Autowired
     CustomerRepository customerRepository;
 
-    private TaxiDetails taxi;
     private CustomerDetails customer;
 
     @BeforeAll
     void setup() {
         RestAssured.port = localServerPort;
         initializeTestData();
+    }
+
+    @BeforeEach
+    void prepareDataSetup() {
+        // Delete all data
+        deleteTaxiAndRideData();
     }
 
     private void initializeTestData() {
@@ -50,9 +56,6 @@ class RideControllerTest extends AbstractIntegrationTest {
 
     @Test
     void testBookRide() {
-        // Delete all data
-        deleteTaxiAndRideData();
-
         // Insert a new taxi with active status
         var taxi = taxiRepository.save(new TaxiDetails()
                 .setMake("Tata")
@@ -88,14 +91,10 @@ class RideControllerTest extends AbstractIntegrationTest {
 
     @Test
     void testBookRideWithNoAvailableTaxi() {
-
         var pickupTime = LocalDateTime.now();
 
-        // Delete all data
-        deleteTaxiAndRideData();
-
         // Insert a new taxi with active status
-        var taxi = taxiRepository.save(new TaxiDetails()
+        taxiRepository.save(new TaxiDetails()
                 .setMake("Tata")
                 .setDriverName("Guna")
                 .setTaxiNumber("TN 44 BH 3245")
@@ -145,11 +144,8 @@ class RideControllerTest extends AbstractIntegrationTest {
 
     @Test
     void testBookRideWithNoActiveTaxi() {
-        // Delete all data
-        deleteTaxiAndRideData();
-
         // Insert a taxi with inactive status
-        var taxi = taxiRepository.save(new TaxiDetails()
+        taxiRepository.save(new TaxiDetails()
                 .setMake("Tata")
                 .setDriverName("Guna")
                 .setTaxiNumber("TN 44 BH 3245")
