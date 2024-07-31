@@ -15,6 +15,9 @@
             <column name="customername" type="varchar(100)">
                 <constraints nullable="false"/>
             </column>
+            <column name="mobilenumber" type="varchar(10)" >
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
